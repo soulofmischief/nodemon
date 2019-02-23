@@ -4,6 +4,34 @@ This is being added to as common issues occur on the [issues](http://github.com/
 
 This is a working document, and if it makes sense, I'll take pull requests to help make it better.
 
+# How to clear the console on restart
+
+Rather than being a(nother) feature in nodemon, and as per the [design principles](https://github.com/remy/nodemon#design-principles) you can clear the console using nodemon's existing architecture.
+
+In your `nodemon.json` (or in your `package.json`) you can include the follow event handler to always clear the console when nodemon starts:
+
+```json
+{
+  "events": {
+    "start": "cls || clear"
+  }
+}
+```
+
+Note that on Windows, this will clear the scroll buffer too. If you try to use node to clear the screen, you may have a race condition between the boot time of your process and the start event. This method should be the fastest.
+
+# nodemon doesn't restart on .env change
+
+This is an edge case with how nodemon watches files. This is because nodemon doesn't know if `.env` is a hidden file with no extension or a `*.env` without a filename.
+
+Nonetheless, to trigger a change on `.env` (or similar files like `.bash_profile`), you need to explicitly tell nodemon to watch the file.
+
+However, now nodemon will *only* watch the `.env` file, so you need to add to what nodemon is watching, i.e. tell nodemon to _also_ watch the current working directory:
+
+```bash
+$ nodemon --watch .env --watch app app/index.js
+```
+
 # nodemon doesn't work with my REPL
 
 Create an nodemon.json file with the setting:
